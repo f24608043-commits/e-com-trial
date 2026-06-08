@@ -1,0 +1,452 @@
+import Layout from "@/components/Layout";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import ProductCard from "@/components/ProductCard";
+import CardFlip from "@/components/CardFlip";
+import SEO, { generateWebsiteSchema, generateOrganizationSchema, generateFAQSchema } from "@/components/SEO";
+import Breadcrumb from "@/components/Breadcrumb";
+import { ArrowRight, Truck, Shield, RefreshCw, Headphones, Star } from "lucide-react";
+import { useState, useEffect, useRef, useMemo } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useLocale } from "@/contexts/LocaleContext";
+import { useProducts } from "@/hooks/use-products";
+import { useCategories } from "@/hooks/use-categories";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { BackgroundCircles } from "@/components/ui/background-circles";
+
+gsap.registerPlugin(ScrollTrigger);
+
+const TRUST_BADGES = [
+  { icon: Truck, label: "Free Shipping", sub: "On orders over $50" },
+  { icon: Shield, label: "Secure Payment", sub: "100% protected" },
+  { icon: RefreshCw, label: "Easy Returns", sub: "30-day guarantee" },
+  { icon: Headphones, label: "24/7 Support", sub: "Always here to help" },
+];
+
+// Category banner mapping
+const categoryBanners: Record<string, string> = {
+  toys: "/images/toys-hero.svg",
+  "gym-sports": "/images/gym-sports-hero.svg",
+  cosmetics: "/images/cosmetics-hero.svg",
+  "garden-outdoor": "/images/garden-outdoor-hero.svg",
+  "home-kitchen": "/images/home-kitchen-hero.svg",
+  crockery: "/images/home-kitchen-hero.svg",
+  hardware: "/images/tools-hero.svg",
+  tools: "/images/tools-hero.svg",
+  "electronics-tech": "/images/electronics-hero.svg",
+  electronics: "/images/electronics-hero.svg",
+  beddings: "/images/beddings-hero.svg",
+  linean: "/images/beddings-hero.svg",
+  clothing: "/images/clothing-hero.svg",
+  kapre: "/images/clothing-hero.svg",
+};
+
+export default function Index() {
+  const [email, setEmail] = useState("");
+  const [subscribed, setSubscribed] = useState(false);
+  const { t, formatPrice, language } = useLocale();
+  const { products } = useProducts();
+  const { categories } = useCategories();
+
+  const featuredProducts = useMemo(() => products.filter(p => p.featured).slice(0, 4), [products]);
+  const bestSellers = useMemo(() => [...products].sort((a, b) => b.rating - a.rating).slice(0, 4), [products]);
+  const trendingProducts = useMemo(() => [...products].filter(p => p.created_at || p.featured).slice(0, 8), [products]);
+
+  const categoriesRef = useRef<HTMLDivElement>(null);
+  const featuredRef = useRef<HTMLDivElement>(null);
+  const bestRef = useRef<HTMLDivElement>(null);
+  const trustRef = useRef<HTMLDivElement>(null);
+
+  const faqs = [
+    { question: "Do you ship to all EU countries?", answer: "Yes, we ship to all EU countries with fast delivery times." },
+    { question: "What is your return policy?", answer: "We offer 30-day easy returns on all products." },
+    { question: "Are your products authentic?", answer: "All our products are 100% authentic and sourced from verified suppliers." },
+    { question: "How long does delivery take?", answer: "Standard delivery takes 3-5 business days within EU." },
+  ];
+
+  useEffect(() => {
+    return () => { };
+  }, [categories.length, featuredProducts.length, bestSellers.length]);
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (email.trim()) {
+      await supabase.from("subscribers").insert({ email: email.trim() });
+      setSubscribed(true);
+      setEmail("");
+    }
+  };
+
+  const mapProduct = (p: typeof products[0]) => ({
+    id: p.id,
+    name: p.name,
+    price: p.price,
+    price_eur: p.price_eur,
+    comparePrice: p.compare_price ?? undefined,
+    sku: p.sku,
+    rating: p.rating,
+    stock: p.stock,
+    image: p.image || "/placeholder.svg",
+    hover_image: p.hover_image,
+    shortDescription: p.short_description || "",
+    categoryId: p.category_id || "",
+    featured: p.featured,
+  });
+
+  return (
+    <Layout>
+      <SEO 
+        title="Home"
+        description="Discover amazing deals on premium products. Shop Toys, Home & Kitchen, Gym & Sports, Cosmetics, Garden & Outdoor, Tools, Electronics, Beddings, and Clothing."
+      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(generateWebsiteSchema()) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(generateOrganizationSchema()) }} />
+      
+      <BackgroundCircles 
+        title="Junavo"
+        description={language === "it" ? "Tutto ciò di cui hai bisogno. Un posto." : "Everything you need. One place."}
+        variant="primary"
+      />
+      
+      <Breadcrumb items={[{ name: "Home", url: "/" }]} />
+
+      {/* Trust badges */}
+      <section className="relative z-20 -mt-10 md:-mt-16 px-6">
+        <div ref={trustRef} className="container mx-auto max-w-6xl">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-slate-200 dark:bg-slate-800 rounded-[2.5rem] overflow-hidden border border-slate-200 dark:border-slate-800 shadow-2xl">
+            {TRUST_BADGES.map((b, i) => (
+              <div key={i} className="trust-item bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl p-8 flex flex-col items-center text-center gap-4 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors duration-300">
+                <div className="h-14 w-14 rounded-2xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center shrink-0">
+                  <b.icon className="h-7 w-7 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <p className="text-base font-bold text-slate-900 dark:text-white mb-1">{b.label}</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">{b.sub}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Hero Banner */}
+      <section className="relative w-full h-[60vh] md:h-[70vh] overflow-hidden">
+        <div className="absolute inset-0">
+          <img
+            src="/images/hero-banner.svg"
+            alt="Shop everything you need at Junavoo"
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-transparent" />
+          <div className="md:hidden absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
+        </div>
+        <div className="relative z-10 h-full flex items-center justify-center">
+          <div className="container mx-auto px-6 max-w-7xl text-center">
+            <div className="max-w-3xl mx-auto">
+              <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 tracking-tight leading-tight">
+                Discover Amazing Deals
+              </h2>
+              <p className="text-lg md:text-xl lg:text-2xl text-white/90 font-medium mb-8 leading-relaxed">
+                Shop our curated collection of premium products at unbeatable prices
+              </p>
+              <Link 
+                to="/shop" 
+                className="inline-flex items-center gap-2 bg-white hover:bg-gray-100 text-gray-900 px-8 py-4 rounded-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
+              >
+                Shop Now <ArrowRight className="h-5 w-5" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Categories */}
+      {categories.length > 0 && (
+        <section className="py-24 md:py-40">
+          <div className="container mx-auto px-6 max-w-7xl">
+            <div className="flex flex-col items-center text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-4">{t("shopByCategory")}</h2>
+              <div className="h-1.5 w-16 bg-blue-600 rounded-full" />
+            </div>
+            <div ref={categoriesRef} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+              {categories
+                .filter(cat => [
+                  "toys",
+                  "gym-sports",
+                  "cosmetics",
+                  "garden-outdoor",
+                  "home-kitchen",
+                  "tools",
+                  "electronics-tech",
+                  "clothing",
+                ].includes(cat.slug))
+                .map(cat => (
+                  <Link key={cat.id} to={`/category/${cat.slug}`} className="cat-card group block">
+                    <div className="rounded-[2rem] border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden hover:border-blue-600 dark:hover:border-blue-500 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 group-hover:-translate-y-2">
+                      <div className="relative h-32">
+                        <img
+                          src={
+                            categoryBanners[cat.slug] ||
+                            "/placeholder.svg"
+                          }
+                          alt={`Shop ${cat.name} - premium products for your needs`}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                      </div>
+                      <div className="p-4 text-center">
+                        <span className="text-sm font-bold text-slate-900 dark:text-white leading-tight">{cat.name}</span>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Why Shop at Junavo */}
+      <section className="py-16 bg-slate-50/50 dark:bg-slate-900/50 border-y border-slate-100 dark:border-slate-800" aria-label="Why choose Junavo">
+        <div className="container mx-auto px-6 max-w-7xl">
+          <div className="flex flex-col items-center text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-4">Why Shop at Junavo</h2>
+            <div className="h-1.5 w-16 bg-blue-600 rounded-full" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { icon: Shield, title: "Curated Quality", desc: "Every product is hand-picked for quality and durability." },
+              { icon: Truck, title: "Unbeatable Prices", desc: "We offer competitive pricing on all premium products." },
+              { icon: RefreshCw, title: "Fast EU Delivery", desc: "Quick shipping across Europe with real-time tracking." },
+            ].map((item, i) => (
+              <Link key={i} to="/about" className="block text-center p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 hover:shadow-lg transition-shadow">
+                <item.icon className="h-12 w-12 mx-auto mb-4 text-blue-600" />
+                <h3 className="text-xl font-bold mb-2">{item.title}</h3>
+                <p className="text-muted-foreground">{item.desc}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Trending Now */}
+      <section className="py-24 md:py-40">
+        <div className="container mx-auto px-6 max-w-7xl">
+          <div className="flex flex-col items-center text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-4">Trending Now</h2>
+            <div className="h-1.5 w-16 bg-blue-600 rounded-full" />
+            <Link to="/shop?sort=newest" className="mt-6 text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-2 group">
+              See All <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {trendingProducts.map(p => (
+              <div key={p.id}>
+                <ProductCard product={mapProduct(p)} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Social Proof - Reviews */}
+      <section className="py-20 bg-gray-50/50 dark:bg-gray-900/50">
+        <div className="container mx-auto px-6 max-w-7xl">
+          <div className="flex flex-col items-center text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-4">What Our Customers Say</h2>
+            <div className="h-1.5 w-16 bg-blue-600 rounded-full" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto" id="reviews">
+            {[
+              { name: "Sarah M.", rating: 5, text: "Amazing quality toys! My kids love them and they're durable.", product: "Toys Collection" },
+              { name: "James T.", rating: 5, text: "Fast shipping and excellent customer service. Highly recommend!", product: "Home & Kitchen" },
+              { name: "Elena R.", rating: 4, text: "Great prices on cosmetics. Will be ordering again soon.", product: "Cosmetics" },
+            ].map((review, i) => (
+              <div key={i} className="p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70">
+                <div className="flex mb-3">
+                  {Array.from({ length: 5 }).map((_, j) => (
+                    <Star key={j} className={`h-4 w-4 ${j < review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-slate-300'}`} />
+                  ))}
+                </div>
+                <p className="text-sm mb-3">"{review.text}"</p>
+                <p className="text-xs text-muted-foreground">— {review.name}, {review.product}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Blog Preview */}
+      <section className="py-24 md:py-40 bg-slate-50/50 dark:bg-slate-900/50 border-y border-slate-100 dark:border-slate-800">
+        <div className="container mx-auto px-6 max-w-7xl">
+          <div className="flex flex-col items-center text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-4">From Our Blog</h2>
+            <div className="h-1.5 w-16 bg-blue-600 rounded-full" />
+            <Link to="/blog" className="mt-6 text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline">
+              View All Posts
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { title: "10 Kitchen Essentials Every Home Needs", slug: "kitchen-essentials", category: "Home Tips" },
+              { title: "Choosing the Right Toys for Your Child's Age", slug: "choosing-toys", category: "Guides" },
+              { title: "Summer Sports Gear: What's Trending", slug: "summer-sports", category: "Sports" },
+            ].map((post, i) => (
+              <Link key={i} to={`/blog/${post.slug}`} className="block group">
+                <div className="rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden hover:shadow-lg transition-shadow">
+                  <div className="h-48 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30" />
+                  <div className="p-4">
+                    <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">{post.category}</span>
+                    <h3 className="text-lg font-bold mt-2 mb-2 group-hover:text-blue-600 transition-colors">{post.title}</h3>
+                    <p className="text-sm text-muted-foreground">Read our latest tips and recommendations for getting the most from your products.</p>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-24 md:py-40" aria-label="Frequently Asked Questions">
+        <div className="container mx-auto px-6 max-w-4xl">
+          <div className="flex flex-col items-center text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-4">FAQs</h2>
+            <div className="h-1.5 w-16 bg-blue-600 rounded-full" />
+            <Link to="/faq" className="mt-6 text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline">
+              See Full FAQ
+            </Link>
+          </div>
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(generateFAQSchema(faqs)) }} />
+          <div className="space-y-4">
+            {faqs.map((faq, i) => (
+              <details key={i} className="p-4 rounded-lg border bg-slate-50 dark:bg-slate-900">
+                <summary className="font-semibold cursor-pointer">{faq.question}</summary>
+                <p className="mt-2 text-sm text-muted-foreground pl-4">{faq.answer}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Products */}
+      {featuredProducts.length > 0 && (
+        <section className="py-24 md:py-40 bg-slate-50/50 dark:bg-slate-900/50 border-y border-slate-100 dark:border-slate-800">
+          <div className="container mx-auto px-6 max-w-7xl">
+            <div className="flex flex-col items-center text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-4">{t("featuredProducts")}</h2>
+              <div className="h-1.5 w-16 bg-blue-600 rounded-full" />
+              <Link to="/shop" className="mt-6 text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-2 group">
+                {t("viewAll")} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </div>
+            <div ref={featuredRef} className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              {featuredProducts.map(p => (
+                <div key={p.id} className="product-reveal">
+                  <ProductCard product={mapProduct(p)} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Promo Banner */}
+      <section className="bg-blue-600 text-white">
+        <div className="container mx-auto px-6 py-12 text-center max-w-7xl">
+          <p className="text-xl md:text-2xl font-black tracking-tight uppercase">🚚 {t("freeShipping")} {formatPrice(50)}</p>
+        </div>
+      </section>
+
+      {/* Best Sellers */}
+      {bestSellers.length > 0 && (
+        <section className="py-24 md:py-40">
+          <div className="container mx-auto px-6 max-w-7xl">
+            <div className="flex flex-col items-center text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-4">{t("bestSellers")}</h2>
+              <div className="h-1.5 w-16 bg-blue-600 rounded-full" />
+              <Link to="/shop" className="mt-6 text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 group">
+                {t("viewAll")} <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </div>
+            <div ref={bestRef} className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              {bestSellers.map(p => (
+                <div key={p.id} className="product-reveal">
+                  <ProductCard product={mapProduct(p)} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Newsletter */}
+      <section className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground">
+        <div className="container mx-auto px-6 py-16 text-center max-w-xl">
+          <h2 className="text-3xl font-bold mb-3">{t("stayUpdated")}</h2>
+          <p className="mb-8 opacity-80">{t("subscribeDesc")}</p>
+          {subscribed ? (
+            <p className="font-semibold text-lg">✓ {t("thankYou")}</p>
+          ) : (
+            <form onSubmit={handleSubscribe} className="flex gap-2 max-w-sm mx-auto">
+              <Input
+                placeholder={t("yourEmail")}
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required
+                className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/60 rounded-xl"
+              />
+              <Button type="submit" variant="secondary" className="rounded-xl shrink-0">{t("subscribe")}</Button>
+            </form>
+          )}
+        </div>
+      </section>
+
+      {/* CardFlip Section */}
+      <section className="py-20 bg-gray-50/50 dark:bg-gray-900/50">
+        <div className="container mx-auto px-6 max-w-7xl">
+          <div className="flex flex-col items-center text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-4">Featured Collections</h2>
+            <div className="h-1.5 w-16 bg-blue-600 rounded-full" />
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            <CardFlip
+              title="Toys Collection"
+              subtitle="Fun & Learning for Kids"
+              description="Discover our exciting range of safe and creative toys."
+              features={[
+                "Safe Materials",
+                "Educational Toys", 
+                "Best Sellers",
+                "Affordable Prices"
+              ]}
+              buttonText="Shop Toys"
+              buttonLink="/category/toys"
+              image="/images/toys-collection.svg"
+            />
+            
+            <CardFlip
+              title="Home & Kitchen"
+              subtitle="Essentials for Everyday Living"
+              description="Upgrade your home with our premium kitchen and home products."
+              features={[
+                "Modern Designs",
+                "Durable Quality",
+                "Smart Storage", 
+                "Trending Products"
+              ]}
+              buttonText="Shop Home & Kitchen"
+              buttonLink="/category/home-kitchen"
+              image="/images/home-kitchen-collection.svg"
+            />
+          </div>
+        </div>
+      </section>
+    </Layout>
+  );
+}
