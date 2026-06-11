@@ -27,20 +27,20 @@ const TRUST_BADGES = [
 
 // Category banner mapping
 const categoryBanners: Record<string, string> = {
-  toys: "/images/toys-hero.svg",
-  "gym-sports": "/images/gym-sports-hero.svg",
-  cosmetics: "/images/cosmetics-hero.svg",
-  "garden-outdoor": "/images/garden-outdoor-hero.svg",
-  "home-kitchen": "/images/home-kitchen-hero.svg",
-  crockery: "/images/home-kitchen-hero.svg",
-  hardware: "/images/tools-hero.svg",
-  tools: "/images/tools-hero.svg",
-  "electronics-tech": "/images/electronics-hero.svg",
-  electronics: "/images/electronics-hero.svg",
-  beddings: "/images/beddings-hero.svg",
-  linean: "/images/beddings-hero.svg",
-  clothing: "/images/clothing-hero.svg",
-  kapre: "/images/clothing-hero.svg",
+  toys: "https://images.unsplash.com/photo-1558060370-d644479cb6f7?w=800&h=400&fit=crop&q=75&auto=format",
+  "gym-sports": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=400&fit=crop&q=75&auto=format",
+  cosmetics: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&h=400&fit=crop&q=75&auto=format",
+  "garden-outdoor": "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&h=400&fit=crop&q=75&auto=format",
+  "home-kitchen": "https://images.unsplash.com/photo-1556911220-bff31c812dba?w=800&h=400&fit=crop&q=75&auto=format",
+  crockery: "https://images.unsplash.com/photo-1578849675582-8d51ec53e05c?w=800&h=400&fit=crop&q=75&auto=format",
+  hardware: "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=800&h=400&fit=crop&q=75&auto=format",
+  tools: "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=800&h=400&fit=crop&q=75&auto=format",
+  "electronics-tech": "https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=800&h=400&fit=crop&q=75&auto=format",
+  electronics: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&h=400&fit=crop&q=75&auto=format",
+  beddings: "https://images.unsplash.com/photo-1505693314120-0d443867891c?w=800&h=400&fit=crop&q=75&auto=format",
+  linean: "https://images.unsplash.com/photo-1505693416388-acece34c2c8e?w=800&h=400&fit=crop&q=75&auto=format",
+  clothing: "https://images.unsplash.com/photo-1445205170230-053b83016050?w=800&h=400&fit=crop&q=75&auto=format",
+  kapre: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&h=400&fit=crop&q=75&auto=format",
 };
 
 export default function Index() {
@@ -135,10 +135,10 @@ export default function Index() {
       <section className="relative w-full h-[60vh] md:h-[70vh] overflow-hidden">
         <div className="absolute inset-0">
           <img
-            src="/images/hero-banner.svg"
+            src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1920&h=1080&fit=crop&q=75&auto=format"
             alt="Shop everything you need at Junavoo"
             className="w-full h-full object-cover"
-            loading="lazy"
+            loading="eager"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-transparent" />
           <div className="md:hidden absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
@@ -291,17 +291,42 @@ export default function Index() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { title: "10 Kitchen Essentials Every Home Needs", slug: "kitchen-essentials", category: "Home Tips" },
-              { title: "Choosing the Right Toys for Your Child's Age", slug: "choosing-toys", category: "Guides" },
-              { title: "Summer Sports Gear: What's Trending", slug: "summer-sports", category: "Sports" },
+              { 
+                title: "10 Kitchen Essentials Every Home Needs", 
+                slug: "kitchen-essentials", 
+                category: "Home Tips",
+                image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&h=400&fit=crop&q=75&auto=format",
+                excerpt: "Discover the must-have kitchen tools and appliances that every modern home needs for efficient cooking and meal preparation."
+              },
+              { 
+                title: "Choosing the Right Toys for Your Child's Age", 
+                slug: "choosing-toys", 
+                category: "Guides",
+                image: "https://images.unsplash.com/photo-1558060370-d644479cb6f7?w=800&h=400&fit=crop&q=75&auto=format",
+                excerpt: "Learn how to select age-appropriate toys that are safe, educational, and fun for your child's developmental stage."
+              },
+              { 
+                title: "Summer Sports Gear: What's Trending", 
+                slug: "summer-sports", 
+                category: "Sports",
+                image: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=400&fit=crop&q=75&auto=format",
+                excerpt: "Explore the latest sports equipment and gear trending this summer for outdoor activities and fitness enthusiasts."
+              },
             ].map((post, i) => (
               <Link key={i} to={`/blog/${post.slug}`} className="block group">
                 <div className="rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden hover:shadow-lg transition-shadow">
-                  <div className="h-48 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30" />
+                  <div className="h-48 overflow-hidden">
+                    <img 
+                      src={post.image} 
+                      alt={post.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      loading="lazy"
+                    />
+                  </div>
                   <div className="p-4">
                     <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">{post.category}</span>
                     <h3 className="text-lg font-bold mt-2 mb-2 group-hover:text-blue-600 transition-colors">{post.title}</h3>
-                    <p className="text-sm text-muted-foreground">Read our latest tips and recommendations for getting the most from your products.</p>
+                    <p className="text-sm text-muted-foreground line-clamp-2">{post.excerpt}</p>
                   </div>
                 </div>
               </Link>
@@ -427,7 +452,7 @@ export default function Index() {
               ]}
               buttonText="Shop Toys"
               buttonLink="/category/toys"
-              image="/images/toys-collection.svg"
+              image="https://images.unsplash.com/photo-1558060370-d644479cb6f7?w=800&h=600&fit=crop&q=75&auto=format"
             />
             
             <CardFlip
@@ -442,7 +467,7 @@ export default function Index() {
               ]}
               buttonText="Shop Home & Kitchen"
               buttonLink="/category/home-kitchen"
-              image="/images/home-kitchen-collection.svg"
+              image="https://images.unsplash.com/photo-1556911220-bff31c812dba?w=800&h=600&fit=crop&q=75&auto=format"
             />
           </div>
         </div>

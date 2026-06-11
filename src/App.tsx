@@ -24,6 +24,9 @@ import Terms from "./pages/Terms";
 import Refund from "./pages/Refund";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
+import BlogKitchenEssentials from "./pages/BlogKitchenEssentials";
+import BlogChoosingToys from "./pages/BlogChoosingToys";
+import BlogSummerSports from "./pages/BlogSummerSports";
 import NotFound from "./pages/NotFound";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -70,6 +73,9 @@ const App = () => (
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/refund" element={<Refund />} />
                 <Route path="/blog" element={<Blog />} />
+                <Route path="/blog/kitchen-essentials" element={<BlogKitchenEssentials />} />
+                <Route path="/blog/choosing-toys" element={<BlogChoosingToys />} />
+                <Route path="/blog/summer-sports" element={<BlogSummerSports />} />
                 <Route path="/blog/:slug" element={<BlogPost />} />
                 <Route path="/admin" element={<AdminLogin />} />
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
